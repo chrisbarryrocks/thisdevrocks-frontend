@@ -6,12 +6,33 @@ interface PostCardProps {
   post: Post;
 }
 
+const FENCED_CODE_BLOCK_REGEX = /```[\s\S]*?```/g;
+const INLINE_CODE_REGEX = /`([^`]+)`/g;
+const MARKDOWN_IMAGE_REGEX = /!\[([^\]]*)\]\([^)]+\)/g;
+const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\([^)]+\)/g;
+const BLOCK_MARKER_REGEX = /^\s{0,3}(#{1,6}\s+|>\s+|[-*+]\s+|\d+\.\s+)/gm;
+const EMPHASIS_REGEX = /(\*\*|__|\*|_)/g;
+const WHITESPACE_REGEX = /\s+/g;
+
+export const stripMarkdown = (text: string): string => {
+  return text
+    .replace(FENCED_CODE_BLOCK_REGEX, " ")
+    .replace(INLINE_CODE_REGEX, "$1")
+    .replace(MARKDOWN_IMAGE_REGEX, "$1")
+    .replace(MARKDOWN_LINK_REGEX, "$1")
+    .replace(BLOCK_MARKER_REGEX, "")
+    .replace(EMPHASIS_REGEX, "")
+    .replace(WHITESPACE_REGEX, " ")
+    .trim();
+};
+
 const PostCard = ({ post }: PostCardProps) => {
   const navigate = useNavigate();
+  const plainContent = stripMarkdown(post.content);
   const previewContent =
-    post.content.length > 150
-      ? `${post.content.slice(0, 150)}...`
-      : post.content;
+    plainContent.length > 150
+      ? `${plainContent.slice(0, 150)}...`
+      : plainContent;
 
   return (
     <article
