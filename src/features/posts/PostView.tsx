@@ -30,7 +30,7 @@ const PostView = () => {
         <h1 className="text-3xl md:text-4xl font-bold text-primaryAccent">
           {post.title}
         </h1>
-        <AnimatedLink to="/blog" label="← Back to All Blog Posts" />
+        <AnimatedLink to="/blog" label="← Back to All Posts" />
       </div>
       <p className="text-textSecondary mb-4 italic">
         {new Date(post.created_at).toLocaleDateString()}

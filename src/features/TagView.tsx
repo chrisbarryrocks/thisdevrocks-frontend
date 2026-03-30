@@ -30,7 +30,7 @@ const TagView = () => {
         <h2 className="text-2xl md:text-3xl font-bold text-primaryAccent">
           Posts tagged with "{tag}"
         </h2>
-        <AnimatedLink to="/blog" label="← Back to All Blog Posts" />
+        <AnimatedLink to="/blog" label="← Back to All Posts" />
       </div>
       <section className="grid gap-6">
         {posts.map((post) => (
