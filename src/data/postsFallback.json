@@ -1,0 +1,20 @@
+[
+  {
+    "id": 2,
+    "title": "Building MoodStack: My First Real Dive into AWS",
+    "content": "I recently had an interview where we ended up talking about real-world IoT systems – how devices could send frequent updates (like coffee machines broadcasting when they're done brewing or the amount of coffee they have left) and how you might handle that kind of architecture. I didn't have access to actual hardware, so I started thinking: how could I simulate a similar system with cloud services?\n\nThat's where **MoodStack** was born.\n\nI wanted to build something small but functional that gave me a chance to work with AWS tools. Something event-driven with real-time updates, and ideally, a little fun to use. What I came up with is a game-like app where you interact with a group of NPCs and influence their mood, either for good or for chaos.\n\n---\n\n## What MoodStack Does\n\nMoodStack is a mini-experiment in real-time state management using serverless tools. You pick a role – Caretaker or Chaos Agent – and perform actions like \"Give Hug\" or \"Trip.\" Each action changes the NPC's mood, which is instantly reflected in the UI.\n\nBehind the scenes, these actions are sent through an API and recorded in a database, and WebSocket messages make sure everyone else sees those mood changes live.\n\n---\n\n## How It Works (Under the Hood)\n\n- **Frontend**: Built with React + Vite + TypeScript and styled with Tailwind.\n- **API Gateway**: Handles incoming REST requests and WebSocket connections.\n- **Lambda Functions**: Core logic lives here – handling mood updates, state reads, and event history.\n- **DynamoDB**: Stores current mood state and mood event history for each NPC.\n- **WebSockets**: Broadcast mood updates so all clients stay in sync in real time.\n\nThe frontend also uses **optimistic UI updates** – when you take an action, the score floats up and the mood updates immediately, before waiting for confirmation from the backend. Once the real update comes back via WebSocket, the app reconciles it.\n\n---\n\n## Hosting and Deployment\n\nI went full AWS for hosting:\n\n- **Amplify** handles frontend builds and deployment. I connected it to my GitHub repo so every push to `main` triggers a new deploy to an S3 bucket behind a CloudFront CDN.\n- **Route 53** manages DNS, pointing my custom subdomain (e.g. `moodstack.thisdev.rocks`) to the Amplify app.\n- **Certificate Manager** handles SSL, all provisioned automatically through Amplify.\n\nThis setup means the whole thing is serverless, scalable, and very hands-off once deployed.\n\n---\n\n## What's Next\n\nI've got a few more ideas I'd like to explore:\n\n- SQS to decouple write-heavy traffic and simulate burst handling\n- Game mode with coins, scoring, and competition (team-based or 1v1)\n- Auth to restrict API access\n- More polish on layout, animations, and accessibility\n- Maybe even actual device integration someday, to tie it back to those original IoT thoughts\n\n---\n\nMoodStack started as a way to get my hands dirty with AWS, but it's turning into a surprisingly fun platform to build on. I'll be adding more features and tweaks over time, so stay tuned for updates.",
+    "created_at": "2025-06-12 18:25:27.399695",
+    "updated_at": "2025-06-12 18:25:27.399695",
+    "slug": "building-moodstack-my-first-real-dive-into-aws",
+    "tags": ["projects", "moodstack", "aws"]
+  },
+  {
+    "id": 1,
+    "title": "Hello World",
+    "content": "We are live!",
+    "created_at": "2025-06-12 18:24:37.112424",
+    "updated_at": "2025-06-12 18:24:37.112424",
+    "slug": "hello-world",
+    "tags": ["hello-world"]
+  }
+]

@@ -1,5 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import {
+  getFallbackPostBySlug,
+  getFallbackPosts,
+  getFallbackPostsByTag,
+} from "../../data/postsFallback";
 import { Post } from "../../types/Post";
 
 interface PostsState {
@@ -18,6 +23,10 @@ const initialState: PostsState = {
 
 const API_URL = process.env.REACT_APP_API_URL;
 const API_TOKEN = process.env.REACT_APP_API_TOKEN;
+
+/** When true, never call the posts API; use bundled JSON only. Set REACT_APP_POSTS_FALLBACK_ONLY=false to use the API (still falls back on failure). */
+const POSTS_FALLBACK_ONLY =
+  process.env.REACT_APP_POSTS_FALLBACK_ONLY === "true";
 
 /**
  * Get headers for API requests, centralized for easier maintenance.
@@ -48,9 +57,12 @@ const handleFulfilledPost = (
   state.post = action.payload;
 };
 
-const handleRejected = (state: PostsState, action: any) => {
+const handleRejected = (state: PostsState, action: { payload?: unknown; error: { message?: string } }) => {
   state.loading = false;
-  state.error = action.error.message || "Failed to fetch posts";
+  state.error =
+    (typeof action.payload === "string" && action.payload) ||
+    action.error.message ||
+    "Failed to fetch posts";
 };
 
 /**
@@ -59,11 +71,18 @@ const handleRejected = (state: PostsState, action: any) => {
 export const fetchPosts = createAsyncThunk<Post[], number | undefined>(
   "posts/fetchPosts",
   async (limit) => {
-    const response = await axios.get(`${API_URL}/posts`, {
-      params: { limit },
-      headers: getHeaders(),
-    });
-    return response.data;
+    if (POSTS_FALLBACK_ONLY) {
+      return getFallbackPosts(limit);
+    }
+    try {
+      const response = await axios.get(`${API_URL}/posts`, {
+        params: { limit },
+        headers: getHeaders(),
+      });
+      return response.data;
+    } catch {
+      return getFallbackPosts(limit);
+    }
   },
 );
 
@@ -72,15 +91,18 @@ export const fetchPosts = createAsyncThunk<Post[], number | undefined>(
  */
 export const fetchPostsByTag = createAsyncThunk<Post[], string>(
   "posts/fetchPostsByTag",
-  async (tag, { rejectWithValue }) => {
+  async (tag) => {
+    if (POSTS_FALLBACK_ONLY) {
+      return getFallbackPostsByTag(tag);
+    }
     try {
       const response = await axios.get(`${API_URL}/posts`, {
         params: { tag },
         headers: getHeaders(),
       });
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue("Failed to load posts for this tag.");
+    } catch {
+      return getFallbackPostsByTag(tag);
     }
   },
 );
@@ -88,15 +110,27 @@ export const fetchPostsByTag = createAsyncThunk<Post[], string>(
 /**
  * Fetch a single post by its slug
  */
-export const fetchPostBySlug = createAsyncThunk<Post, string>(
-  "posts/fetchPostBySlug",
-  async (slug) => {
+export const fetchPostBySlug = createAsyncThunk<
+  Post,
+  string,
+  { rejectValue: string }
+>("posts/fetchPostBySlug", async (slug, { rejectWithValue }) => {
+  if (POSTS_FALLBACK_ONLY) {
+    const post = getFallbackPostBySlug(slug);
+    if (post) return post;
+    return rejectWithValue("Post not found.");
+  }
+  try {
     const response = await axios.get(`${API_URL}/posts/${slug}`, {
       headers: getHeaders(),
     });
     return response.data;
-  },
-);
+  } catch {
+    const post = getFallbackPostBySlug(slug);
+    if (post) return post;
+    return rejectWithValue("Post not found.");
+  }
+});
 
 const postsSlice = createSlice({
   name: "posts",

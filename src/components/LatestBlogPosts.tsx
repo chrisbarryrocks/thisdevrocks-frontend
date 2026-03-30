@@ -8,7 +8,7 @@ const LatestBlogPosts = () => {
 
   return (
     <section id="blog" className="space-y-4">
-      <h2 className="text-3xl font-semibold text-white">Latest Blog Posts</h2>
+      <h2 className="text-3xl font-semibold text-white">Latest Blog Postss</h2>
       <PostsList limit={3} />
       {posts.length >= 3 && (
         <div className="flex justify-end mt-4">
